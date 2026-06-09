@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Französisch Konjugationstrainer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🇫🇷 Französisch Konjugationstrainer</h1>
+
+    <div class="progress-card">
+        <h2>Gesamtfortschritt</h2>
+        <div class="progress-bar">
+            <div id="progressFill"></div>
+        </div>
+        <p id="progressText">0%</p>
+    </div>
+
+    <div class="verb-card">
+        <h2 id="verbTitle"></h2>
+
+        <form id="quizForm"></form>
+
+        <button onclick="checkAnswers()">
+            Antworten prüfen
+        </button>
+    </div>
+
+</div>
+
+<footer>
+    © Max Riech
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
