@@ -1,0 +1,1 @@
+# Konjugierete-Verben-Franz-sisch
