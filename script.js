@@ -1,5 +1,4 @@
 const verbs = [
-
 {
 name:"être",
 forms:{
@@ -9,7 +8,6 @@ futur:["serai","seras","sera","serons","serez","seront"],
 imparfait:["étais","étais","était","étions","étiez","étaient"]
 }
 },
-
 {
 name:"avoir",
 forms:{
@@ -19,7 +17,6 @@ futur:["aurai","auras","aura","aurons","aurez","auront"],
 imparfait:["avais","avais","avait","avions","aviez","avaient"]
 }
 },
-
 {
 name:"aller",
 forms:{
@@ -29,7 +26,6 @@ futur:["irai","iras","ira","irons","irez","iront"],
 imparfait:["allais","allais","allait","allions","alliez","allaient"]
 }
 },
-
 {
 name:"faire",
 forms:{
@@ -39,7 +35,6 @@ futur:["ferai","feras","fera","ferons","ferez","feront"],
 imparfait:["faisais","faisais","faisait","faisions","faisiez","faisaient"]
 }
 },
-
 {
 name:"prendre",
 forms:{
@@ -49,7 +44,6 @@ futur:["prendrai","prendras","prendra","prendrons","prendrez","prendront"],
 imparfait:["prenais","prenais","prenait","prenions","preniez","prenaient"]
 }
 },
-
 {
 name:"mettre",
 forms:{
@@ -59,7 +53,6 @@ futur:["mettrai","mettras","mettra","mettrons","mettrez","mettront"],
 imparfait:["mettais","mettais","mettait","mettions","mettiez","mettaient"]
 }
 },
-
 {
 name:"lire",
 forms:{
@@ -69,7 +62,6 @@ futur:["lirai","liras","lira","lirons","lirez","liront"],
 imparfait:["lisais","lisais","lisait","lisions","lisiez","lisaient"]
 }
 },
-
 {
 name:"écrire",
 forms:{
@@ -79,7 +71,6 @@ futur:["écrirai","écriras","écrira","écrirons","écrirez","écriront"],
 imparfait:["écrivais","écrivais","écrivait","écrivions","écriviez","écrivaient"]
 }
 },
-
 {
 name:"savoir",
 forms:{
@@ -89,7 +80,6 @@ futur:["saurai","sauras","saura","saurons","saurez","sauront"],
 imparfait:["savais","savais","savait","savions","saviez","savaient"]
 }
 },
-
 {
 name:"connaître",
 forms:{
@@ -99,7 +89,6 @@ futur:["connaîtrai","connaîtras","connaîtra","connaîtrons","connaîtrez","co
 imparfait:["connaissais","connaissais","connaissait","connaissions","connaissiez","connaissaient"]
 }
 }
-
 ];
 
 const persons = [
@@ -118,118 +107,147 @@ const times = [
 ["imparfait","Imparfait"]
 ];
 
-let currentVerb = 0;
+let correctAnswers =
+parseInt(localStorage.getItem("correctAnswers")) || 0;
 
-let mastered = JSON.parse(localStorage.getItem("mastered")) || 0;
+let verbIndex = 0;
+let timeIndex = 0;
+let personIndex = 0;
 
 function updateProgress(){
-let percent = Math.round((mastered / verbs.length) * 100);
+
+const total = 240;
+
+const percent =
+((correctAnswers / total) * 100).toFixed(2);
 
 document.getElementById("progressFill").style.width =
 percent + "%";
 
 document.getElementById("progressText").innerText =
-percent + "%";
+`${correctAnswers} / ${total} (${percent}%)`;
+
+const level =
+Math.floor(correctAnswers / 25) + 1;
+
+document.getElementById("levelText").innerText =
+`Level ${level}`;
 }
 
-function loadVerb(){
+function loadQuestion(){
 
-if(currentVerb >= verbs.length){
+if(verbIndex >= verbs.length){
 
-document.getElementById("verbTitle").innerHTML =
-"🎉 Alle Verben geschafft!";
+document.getElementById("questionArea").innerHTML =
+"<h2>🏆 Alles geschafft!</h2>";
 
-document.getElementById("quizForm").innerHTML = "";
 return;
 }
 
-const verb = verbs[currentVerb];
+const verb = verbs[verbIndex];
 
-document.getElementById("verbTitle").innerHTML =
-"Konjugiere: " + verb.name;
+document.getElementById("verbTitle").innerText =
+`Verb: ${verb.name}`;
 
-let html = "";
+document.getElementById("timeTitle").innerText =
+times[timeIndex][1];
 
-times.forEach(time=>{
+document.getElementById("personText").innerText =
+persons[personIndex];
 
-html += `<h3 class="timeTitle">${time[1]}</h3>`;
+document.getElementById("answerInput").value = "";
 
-persons.forEach((person,index)=>{
-
-html += `
-<div class="question">
-<label>${person}</label>
-<input data-time="${time[0]}"
-data-index="${index}">
-</div>
-`;
-
-});
-
-});
-
-document.getElementById("quizForm").innerHTML = html;
+document.getElementById("answerInput").focus();
 }
 
-function checkAnswers(){
+function nextQuestion(){
 
-const verb = verbs[currentVerb];
+personIndex++;
 
-const inputs =
-document.querySelectorAll("input");
+if(personIndex > 5){
 
-let correct = 0;
+personIndex = 0;
+timeIndex++;
+}
 
-inputs.forEach(input=>{
+if(timeIndex > 3){
 
-let time = input.dataset.time;
-let index = input.dataset.index;
+timeIndex = 0;
+verbIndex++;
 
-let solution =
-verb.forms[time][index]
+if(verbIndex < verbs.length){
+
+alert(
+`🎉 ${verbs[verbIndex-1].name} abgeschlossen!`
+);
+}
+}
+
+loadQuestion();
+}
+
+function checkAnswer(){
+
+const verb = verbs[verbIndex];
+
+const solution =
+verb.forms[times[timeIndex][0]][personIndex]
 .toLowerCase();
 
-let answer =
-input.value.trim().toLowerCase();
+const answer =
+document.getElementById("answerInput")
+.value
+.trim()
+.toLowerCase();
+
+const feedback =
+document.getElementById("feedback");
 
 if(answer === solution){
 
-input.classList.add("correct");
-correct++;
+correctAnswers++;
+
+localStorage.setItem(
+"correctAnswers",
+correctAnswers
+);
+
+updateProgress();
+
+feedback.innerHTML =
+"<span class='success'>✅ Richtig</span>";
+
+setTimeout(()=>{
+feedback.innerHTML="";
+nextQuestion();
+},600);
 
 }else{
 
-input.classList.add("wrong");
-input.value += " ❌ → " + solution;
+feedback.innerHTML =
+`<span class='error'>
+❌ Falsch<br>
+Richtig: ${solution}
+</span>`;
+}
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+updateProgress();
+loadQuestion();
+
+document
+.getElementById("answerInput")
+.addEventListener("keydown",e=>{
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+checkAnswer();
 }
 
 });
 
-if(correct === 24){
-
-mastered++;
-localStorage.setItem(
-"mastered",
-mastered
-);
-
-updateProgress();
-
-setTimeout(()=>{
-
-currentVerb++;
-loadVerb();
-
-},1500);
-
-}else{
-
-alert(
-`${correct}/24 richtig.
-Für das nächste Verb müssen alle richtig sein.`
-);
-}
-}
-
-updateProgress();
-loadVerb();
+});
